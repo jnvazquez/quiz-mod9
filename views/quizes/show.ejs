@@ -1,0 +1,9 @@
+<%if (quiz.image){%>
+    <p><img class="quiz_img" src="/media/<%= quiz.image %>"></p>
+<%}%>
+
+<form method="get" action="/quizes/<%= quiz.id %>/answer">        
+    <p><%= quiz.pregunta %></p>
+    <input type="text" name="respuesta" value="Respuesta"/>
+    <input type="submit" value="Enviar">
+</form>

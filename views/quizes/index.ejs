@@ -1,0 +1,35 @@
+<form method="get" action="/quizes">
+    <p>Buscador:</p>
+    <input type="text" name="search" value="Buscar..." />
+    <input type="submit" value="Enviar" />
+</form>
+
+<br/>
+
+  <table border="1" align="center" width="100%">
+    <% if (quizes !== null && quizes !== undefined) { %>
+        <tr>
+          <th>Pregunta</th>
+          <th>Categoría</th>
+          <th colspan="2">Acción</th>
+        </tr>
+        <% var i; for (i=0; i < quizes.length; i++) { %>        
+          <tr>
+            <td align="left"><a href="/quizes/<%= quizes[i].id %>"><%= quizes[i].pregunta %></a></td>
+            <td align="center"><span><%= quizes[i].categoria %></span></td>
+            <td align="center" width="5%">
+                <a href="/quizes/<%= quizes[i].id %>/edit"><button type="button">Editar</button></a>
+            </td>
+            <td align="center" width="5%">
+              <form method="post" action="/quizes/<%= quizes[i].id %>?_method=delete">
+                  <button type="submit" onClick="return confirm('Borrar: <%= quizes[i].pregunta %>);">Borrar</button>
+              </form>
+            </td>
+          </tr> 
+        <% } %>
+    <% } else { %>
+      <tr><p>No se encontraron resultados</p></tr>
+    <% } %>
+  </table>
+  <br/>
+  <a href="/quizes/new" ><button type="button">Crear pregunta</button></a>

@@ -1,0 +1,17 @@
+<h1Cr&eacute;ditos</h1>
+<h5>Autores:</h5>
+<br/>
+<% if (autores.length > 0) { %>
+    <table border="1" width="100%">
+        <% for(var i=0; i < autores.length; i++) { %>
+            <tr>
+                <th>Autor</th>
+                <th>Foto</th>
+            </tr>
+            <tr>
+                <td><p><%= autores[i].nombre %></p></td>
+                <td><img src='<%= autores[i].imagen %>' alt="Foto Autor 1" style='width:100px;height:80px;'></td>
+            </tr>
+        <% } %>
+    </table>
+<% } %>

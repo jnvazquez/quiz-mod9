@@ -1,0 +1,29 @@
+<div style="text-align:center;">
+	<table border="0" style="margin: 0 auto;">
+      <tr>
+        <td align="left">
+          <label for="preg" class="rem">Pregunta:</label>
+          <input type="text" id="preg" name="quiz[pregunta]" value="<%= quiz.pregunta %>" />
+        </td>
+        <td align="left">
+          <label for="resp" class="resp">Respuesta:</label>
+          <input type="text" id="resp" name="quiz[respuesta]" value="<%= quiz.respuesta %>" /><br/>
+        </td>
+      </tr>
+      <tr>
+        <td align="left">
+          <label for="categoria" class="categoria">Categoría:</label>
+          <select id="categoria" name="quiz[categoria]" value="<%= quiz.categoria %>">
+            <option value="Otro" <% if (quiz.categoria === "Otro") { %>selected <% } %> >Otro</option>
+            <option value="Humanidades" <% if (quiz.categoria === "Humanidades") { %>selected <% } %> >Humanidades</option>
+            <option value="Ocio" <% if (quiz.categoria === "Ocio") { %>selected <% } %> >Ocio</option>
+            <option value="Ciencia" <% if (quiz.categoria === "Ciencia") { %>selected <% } %> >Ciencia</option>
+            <option value="Tecnologia" <% if (quiz.categoria === "Tecnologia") { %>selected <% } %> >Tecnología</option>
+          </select>
+        </td>
+      </tr>
+    </table>
+</div>
+<br/>
+<a href="/quizes">Cancelar</a>
+<input type="submit" value="Salvar" >
