@@ -1,39 +1,55 @@
 var models = require('../models/models.js');
 
+// MW que permite acciones solamente si el quiz objeto pertenece al usuario logeado o si es cuenta admin
+exports.ownershipRequired = function(req, res, next){
+    var objQuizOwner = req.quiz.UserId;
+    var logUser = req.session.user.id;
+    var isAdmin = req.session.user.isAdmin;
+
+    if (isAdmin || objQuizOwner === logUser) {
+        next();
+    } else {
+        res.redirect('/');
+    }
+};
+
 // Autoload - factoriza el código si ruta incluye :quizId
 exports.load = function(req, res, next, quizId) {
-  models.Quiz.find(quizId).then(
-      function(quiz) {
-        if (quiz) {
-          req.quiz = quiz;
-          next();
-        } else { next(new Error('No existe quizId=' + quizId)); }
-      }
-    ).catch(function(error) {next(error);});
+  models.Quiz.find({
+            where: {
+                id: Number(quizId)
+            },
+            include: [{
+                model: models.Comment
+            }]
+        }).then(function(quiz) {
+      if (quiz) {
+        req.quiz = quiz;
+        next();
+      } else{next(new Error('No existe quizId=' + quizId))}
+    }
+  ).catch(function(error){next(error)});
 };
 
 // GET /quizes
-exports.index = function(req, res) {
-  var searchStr = req.query.search;
-  if (searchStr !== undefined) {
-    models.Quiz.findAll({ 
-        where : ['pregunta like ?', '%' + searchStr.replace(' ', '%') + '%'],
-        order : [['pregunta', 'DESC']]
-    })
-      .then(function(quizes) {
-        res.render('quizes/index.ejs', { quizes : quizes, errors : [] });
-    });
-  } else {
-    models.Quiz.findAll().then(function(quizes) {
-        res.render('quizes/index.ejs', { quizes : quizes, errors : [] });
-    }); 
+// GET /users/:userId/quizes
+exports.index = function(req, res) {  
+  var options = {};
+  if(req.user){
+    options.where = {UserId: req.user.id}
   }
+  
+  models.Quiz.findAll(options).then(
+    function(quizes) {
+      res.render('quizes/index.ejs', {quizes: quizes, errors: []});
+    }
+  ).catch(function(error){next(error)});
 };
 
 // GET /quizes/:id
 exports.show = function(req, res) {
-  res.render('quizes/show', { quiz : req.quiz, errors : [] });
-};
+  res.render('quizes/show', { quiz: req.quiz, errors: []});
+};            // req.quiz: instancia de quiz cargada con autoload
 
 // GET /quizes/:id/answer
 exports.answer = function(req, res) {
@@ -56,6 +72,12 @@ exports.new = function(req, res) {
 
 // POST /quizes/create
 exports.create = function(req, res) {
+  req.body.quiz.UserId = req.session.user.id;
+ 
+  if(req.files.image){
+    req.body.quiz.image = req.files.image.name;
+  }
+  
   var quiz = models.Quiz.build(req.body.quiz);
 
   quiz.validate().then(
@@ -63,11 +85,11 @@ exports.create = function(req, res) {
       if (err) {
         res.render('quizes/new', {  quiz : quiz, errors : err.errors });
       } else {
-          quiz.save({ fields : ["pregunta" , "respuesta", "categoria"]}).then( function () {
+          quiz.save({ fields : ["pregunta" , "respuesta", "categoria", "UserId", "image"]}).then( function () {
             res.redirect('/quizes');  
           });   // Redireccion a la lista de preguntas
       }
-    })  
+    }).catch(function(error){next(error)});
 };
 
 // GET /quizes/:id/edit
@@ -78,6 +100,9 @@ exports.edit = function(req, res) {
 
 // PUT /quizes/:id
 exports.update = function(req, res) {
+  if(req.files.image){
+    req.quiz.image = req.files.image.name;
+  }
   req.quiz.pregunta  = req.body.quiz.pregunta;
   req.quiz.respuesta = req.body.quiz.respuesta;
   req.quiz.categoria = req.body.quiz.categoria;
@@ -90,11 +115,11 @@ exports.update = function(req, res) {
         res.render('quizes/edit', {quiz: req.quiz, errors: err.errors});
       } else {
         req.quiz     // save: guarda campos pregunta, respuesta y categoria en DB
-        .save( {fields: ["pregunta", "respuesta", "categoria"]})
+        .save( {fields: ["pregunta", "respuesta", "categoria", "image"]})
         .then( function(){ res.redirect('/quizes');});
       }     // Redirección HTTP a lista de preguntas (URL relativo)
     }
-  );
+  ).catch(function(error){next(error)});;
 };
 
 // DELETE /quizes/:id
@@ -111,5 +136,6 @@ exports.author = function(req, res) {
     autor['nombre'] = 'Jorge Navarro';
     autor['imagen'] = '/images/author_1.png';
     data.push(autor);
-    res.render('author', {autores: data, errors : []});
+    res.render('author', {autores: data, errors : []})
+      .catch(function(error){next(error)});;
 };
