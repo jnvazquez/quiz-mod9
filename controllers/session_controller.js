@@ -3,6 +3,9 @@ exports.loginRequired = function(req, res, next){
     if (req.session.user) {
         next();
     } else {
+        // Si es necesario login y se ha perdido
+        // recuperamos el error
+        req.session.errors = res.locals.errors;
         res.redirect('/login');
     }
 };

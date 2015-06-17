@@ -36,14 +36,14 @@ exports.load = function(req, res, next, quizId) {
 exports.index = function(req, res) {  
   var options = {};
   if(req.user){
-    options.where = {UserId: req.user.id}
+    options.where = {UserId: req.user.id};
   }
   
   models.Quiz.findAll(options).then(
     function(quizes) {
       res.render('quizes/index.ejs', {quizes: quizes, errors: []});
     }
-  ).catch(function(error){next(error)});
+  );
 };
 
 // GET /quizes/:id
@@ -89,7 +89,7 @@ exports.create = function(req, res) {
             res.redirect('/quizes');  
           });   // Redireccion a la lista de preguntas
       }
-    }).catch(function(error){next(error)});
+    });
 };
 
 // GET /quizes/:id/edit
@@ -119,7 +119,7 @@ exports.update = function(req, res) {
         .then( function(){ res.redirect('/quizes');});
       }     // Redirección HTTP a lista de preguntas (URL relativo)
     }
-  ).catch(function(error){next(error)});;
+  );
 };
 
 // DELETE /quizes/:id
@@ -136,6 +136,5 @@ exports.author = function(req, res) {
     autor['nombre'] = 'Jorge Navarro';
     autor['imagen'] = '/images/author_1.png';
     data.push(autor);
-    res.render('author', {autores: data, errors : []})
-      .catch(function(error){next(error)});;
+    res.render('author', {autores: data, errors : []});
 };

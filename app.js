@@ -22,11 +22,34 @@ app.use(partials());
 app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser('Quiz 2015'));
-app.use(session());
+app.use(session()); //120000
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Comprobamos si la sesión ha expirado
+app.use(function(req, res, next) {
+  var lapse = 120000;
+  var now = new Date();
+  var expireTime = now + lapse;
+  
+  // Detectamos si existe un timeout de sesion para eliminar
+  // los datos de la sesión
+  if (req.session != null) {
+      if (req.session.expires != undefined) { 
+         var expireReq = new Date(req.session.expires);
+         if ((now.getTime() - expireReq.getTime()) >= lapse ) {
+            req.session.user = '';
+            req.session.password = '';
+            res.locals.errors = [{message : '¡Atención! La sesión ha expirado.'}];
+         }
+      } 
+      req.session.expires = expireTime;
+  }
+  
+  next();
+});
 
 // Helpers dinamicos:
 app.use(function(req, res, next) {
@@ -44,6 +67,7 @@ app.use(function(req, res, next) {
   res.locals.session = req.session;
   next();
 });
+
 
 app.use('/', routes);
 

@@ -62,7 +62,7 @@ exports.new = function(req, res) {
 // POST /user
 exports.create = function(req, res) {
     var user = models.User.build( req.body.user );
-
+  
     user
     .validate()
     .then(
@@ -79,7 +79,7 @@ exports.create = function(req, res) {
                 }); 
             }
         }
-    ).catch(function(error){next(error)});
+    );
 };
 
 // PUT /user/:id
@@ -108,5 +108,5 @@ exports.destroy = function(req, res) {
     // borra la sesión y redirige a /
     delete req.session.user;
     res.redirect('/');
-  }).catch(function(error){next(error)});
+  });
 };
